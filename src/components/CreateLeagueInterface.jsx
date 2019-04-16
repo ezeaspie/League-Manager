@@ -12,7 +12,78 @@ const CreateLeagueInterface = (props) => {
     playerFactory('Player', 'Home Stadium'),
   ];
   const [playerObjectArray, setPlayerObjectArray] = useState(initalObjectArray);
-  const [leagueName, setLeagueName] = useState("My League");
+  const [leagueName, setLeagueName] = useState('My League');
+  const createFixtures = (playerObjectArray) => {
+    const allFixtures = [];
+    // Two Step Process of Finding what players still need fixtures
+    const getCurrentPlayerAndOpponents = (arrayOfPlayersWhoNeedFixtures) => {
+      const currentPlayer = arrayOfPlayersWhoNeedFixtures[0];
+      const opponentArray = arrayOfPlayersWhoNeedFixtures.filter(player => currentPlayer !== player);
+      return { currentPlayer, opponentArray };
+    };
+    // and then creating those fixtures
+    const createFixturesForAPlayer = (player, opponents) => {
+      opponents.forEach((opponent) => {
+        const fixtureObject = { home: player, away: opponent };
+        allFixtures.push(fixtureObject);
+      });
+      return opponents;
+    };
+
+    let currentData = getCurrentPlayerAndOpponents(playerObjectArray);
+    let returnedOpponentArray = createFixturesForAPlayer(currentData.currentPlayer, currentData.opponentArray);
+
+    // Loop until no possible fixtures are left, then return the full fixture list
+    while (returnedOpponentArray.length > 1) {
+      currentData = getCurrentPlayerAndOpponents(returnedOpponentArray);
+      returnedOpponentArray = createFixturesForAPlayer(currentData.currentPlayer, currentData.opponentArray);
+    }
+    return allFixtures;
+  };
+
+  const createMatchDays = (fixtures) => {
+    let remainingFixtures = fixtures.slice(0);
+    const matchesPerMatchday = playerObjectArray.length / 2;
+    const matchDays = [];
+    const removeFixture = (fixture) => {
+      console.log(remainingFixtures);
+      remainingFixtures.forEach((remainingFixture, index) => {
+        const isMatch = remainingFixture.home === fixture.home && remainingFixture.away === fixture.away;
+        if (isMatch) {
+          remainingFixtures.splice(index, 1);
+          console.log('removed');
+        }
+      });
+    };
+    const createMatchDayFixtures = () => {
+      const filters = [];
+      let matchDay = [];
+      const clone = remainingFixtures.slice(0);
+      if (matchesPerMatchday === remainingFixtures.length) {
+        console.log("this run");
+        matchDay = clone;
+        remainingFixtures = [];
+      } else {
+        clone.forEach((fixture) => {
+          const hasParticipatedInAFixture = filters.includes(fixture.home.id) || filters.includes(fixture.away.id);
+          if (!hasParticipatedInAFixture) {
+            console.log(filters);
+            matchDay.push(fixture);
+            removeFixture(fixture);
+            filters.push(fixture.home.id);
+            filters.push(fixture.away.id);
+          }
+        });
+      }
+      matchDays.push(matchDay);
+    };
+
+    while (remainingFixtures.length > 0) {
+      console.log(remainingFixtures.length);
+      createMatchDayFixtures();
+    }
+    return matchDays;
+  };
 
   const updateNumberOfPlayers = (amount) => {
     // eslint-disable-next-line prefer-const
@@ -37,7 +108,7 @@ const CreateLeagueInterface = (props) => {
   };
 
   const updatePlayerData = (id, newObject) => {
-    let manipulatedArray = playerObjectArray;
+    const manipulatedArray = playerObjectArray;
     manipulatedArray.forEach((player) => {
       if (player.id === id) {
         player = newObject;
@@ -73,7 +144,7 @@ const CreateLeagueInterface = (props) => {
         playerObjectArray.map(player => <CreatePlayerForm player={player} updatePlayerData={updatePlayerData} key={player.id} />)
       }
       <button
-        onClick={() => console.log(playerObjectArray)}
+        onClick={() => console.log(createMatchDays(createFixtures(playerObjectArray)))}
       >
         Create League
       </button>
