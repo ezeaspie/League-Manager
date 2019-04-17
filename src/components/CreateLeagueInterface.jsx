@@ -13,74 +13,35 @@ const CreateLeagueInterface = (props) => {
   ];
   const [playerObjectArray, setPlayerObjectArray] = useState(initalObjectArray);
   const [leagueName, setLeagueName] = useState('My League');
-  const createFixtures = (playerObjectArray) => {
-    const allFixtures = [];
-    // Two Step Process of Finding what players still need fixtures
-    const getCurrentPlayerAndOpponents = (arrayOfPlayersWhoNeedFixtures) => {
-      const currentPlayer = arrayOfPlayersWhoNeedFixtures[0];
-      const opponentArray = arrayOfPlayersWhoNeedFixtures.filter(player => currentPlayer !== player);
-      return { currentPlayer, opponentArray };
+
+  const generateSchedule = () => {
+    const fixturesNeeded = ((playerObjectArray.length / 2) * (playerObjectArray.length - 1));
+    const roundsNeeded = fixturesNeeded / (playerObjectArray.length / 2);
+    const halfLength = Math.ceil(playerObjectArray.length / 2); // Of the player Array
+    // Split the player Array into two
+    const leftSide = playerObjectArray.slice(0, halfLength);
+    const arraySecondHalf = playerObjectArray.slice(halfLength, playerObjectArray.length);
+    arraySecondHalf.reverse();
+    const createMatchDay = () => {
+      const matchDay = leftSide.map((player, i) => ({ home: player, away: arraySecondHalf[i] }));
+      return matchDay;
     };
-    // and then creating those fixtures
-    const createFixturesForAPlayer = (player, opponents) => {
-      opponents.forEach((opponent) => {
-        const fixtureObject = { home: player, away: opponent };
-        allFixtures.push(fixtureObject);
-      });
-      return opponents;
+    // Rotate the array Round Robin style to get unique fixtures.
+    const rotateArrays = () => {
+      const anchor = leftSide.shift();
+      const array2FirstIndex = arraySecondHalf.splice(0, 1);
+      leftSide.unshift(array2FirstIndex[0]);
+      const array1FinalIndex = leftSide.pop();
+      leftSide.unshift(anchor);
+      arraySecondHalf.push(array1FinalIndex);
     };
 
-    let currentData = getCurrentPlayerAndOpponents(playerObjectArray);
-    let returnedOpponentArray = createFixturesForAPlayer(currentData.currentPlayer, currentData.opponentArray);
-
-    // Loop until no possible fixtures are left, then return the full fixture list
-    while (returnedOpponentArray.length > 1) {
-      currentData = getCurrentPlayerAndOpponents(returnedOpponentArray);
-      returnedOpponentArray = createFixturesForAPlayer(currentData.currentPlayer, currentData.opponentArray);
-    }
-    return allFixtures;
-  };
-
-  const createMatchDays = (fixtures) => {
-    let remainingFixtures = fixtures.slice(0);
-    const matchesPerMatchday = playerObjectArray.length / 2;
+    let counter = 0;
     const matchDays = [];
-    const removeFixture = (fixture) => {
-      console.log(remainingFixtures);
-      remainingFixtures.forEach((remainingFixture, index) => {
-        const isMatch = remainingFixture.home === fixture.home && remainingFixture.away === fixture.away;
-        if (isMatch) {
-          remainingFixtures.splice(index, 1);
-          console.log('removed');
-        }
-      });
-    };
-    const createMatchDayFixtures = () => {
-      const filters = [];
-      let matchDay = [];
-      const clone = remainingFixtures.slice(0);
-      if (matchesPerMatchday === remainingFixtures.length) {
-        console.log("this run");
-        matchDay = clone;
-        remainingFixtures = [];
-      } else {
-        clone.forEach((fixture) => {
-          const hasParticipatedInAFixture = filters.includes(fixture.home.id) || filters.includes(fixture.away.id);
-          if (!hasParticipatedInAFixture) {
-            console.log(filters);
-            matchDay.push(fixture);
-            removeFixture(fixture);
-            filters.push(fixture.home.id);
-            filters.push(fixture.away.id);
-          }
-        });
-      }
-      matchDays.push(matchDay);
-    };
-
-    while (remainingFixtures.length > 0) {
-      console.log(remainingFixtures.length);
-      createMatchDayFixtures();
+    while (counter < roundsNeeded) {
+      matchDays.push(createMatchDay());
+      rotateArrays();
+      counter += 1;
     }
     return matchDays;
   };
@@ -141,10 +102,11 @@ const CreateLeagueInterface = (props) => {
         >+</button>
       </div>
       {
+        // eslint-disable-next-line max-len
         playerObjectArray.map(player => <CreatePlayerForm player={player} updatePlayerData={updatePlayerData} key={player.id} />)
       }
       <button
-        onClick={() => console.log(createMatchDays(createFixtures(playerObjectArray)))}
+        onClick={() => generateSchedule()}
       >
         Create League
       </button>
