@@ -23,7 +23,8 @@ const CreateLeagueInterface = (props) => {
     const arraySecondHalf = playerObjectArray.slice(halfLength, playerObjectArray.length);
     arraySecondHalf.reverse();
     const createMatchDay = () => {
-      const matchDay = leftSide.map((player, i) => ({ home: player, away: arraySecondHalf[i] }));
+      // eslint-disable-next-line max-len
+      const matchDay = leftSide.map((player, i) => ({ home: player, away: arraySecondHalf[i], result: [1, 0] }));
       return matchDay;
     };
     // Rotate the array Round Robin style to get unique fixtures.
@@ -44,6 +45,12 @@ const CreateLeagueInterface = (props) => {
       counter += 1;
     }
     return matchDays;
+  };
+
+  const handleLeagueGeneration = () => {
+    const fixtures = generateSchedule();
+    const leagueData = { players: playerObjectArray, fixtures, leagueTitle: leagueName };
+    props.updateCurrentView(2, leagueData);
   };
 
   const updateNumberOfPlayers = (amount) => {
@@ -106,7 +113,7 @@ const CreateLeagueInterface = (props) => {
         playerObjectArray.map(player => <CreatePlayerForm player={player} updatePlayerData={updatePlayerData} key={player.id} />)
       }
       <button
-        onClick={() => generateSchedule()}
+        onClick={handleLeagueGeneration}
       >
         Create League
       </button>
