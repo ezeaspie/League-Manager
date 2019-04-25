@@ -9,13 +9,13 @@ The goal of this application is to manage sports league tables, fixtures, and cu
 
 ### Basic League
 
-1. Allow users to add players and name their leagues.
+1. ~~Allow users to add players and name their leagues.~~
 
-2. Allow users to generate fixtures based on customizable settings (home/away, single matchup, etc.)
+2. ~~Allow users to generate fixtures based on customizable settings (home/away, single matchup, etc.)~~
 
-3. Be able to see league tables and fixtures once a league is loaded in.
+3. ~~Be able to see league tables and fixtures once a league is loaded in.~~
 
-4. On updating a fixture, update the league table.
+4. ~~On updating a fixture, update the league table.~~
 
 5. Allow for table customization (1st place = champion, 2-4 = playoff, 18-20 = relegation, etc.)
 

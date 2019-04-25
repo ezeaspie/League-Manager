@@ -3,18 +3,21 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import playerFactory from './playerFactory';
 import CreatePlayerForm from './appParts/CreatePlayerForm';
+import { match } from 'minimatch';
 
 const CreateLeagueInterface = (props) => {
   const initalObjectArray = [
-    playerFactory('Player', 'Home Stadium'),
-    playerFactory('Player', 'Home Stadium'),
-    playerFactory('Player', 'Home Stadium'),
-    playerFactory('Player', 'Home Stadium'),
+    playerFactory('Player1', 'Home Stadium'),
+    playerFactory('Player2', 'Home Stadium'),
+    playerFactory('Player3', 'Home Stadium'),
+    playerFactory('Player4', 'Home Stadium'),
   ];
   const [playerObjectArray, setPlayerObjectArray] = useState(initalObjectArray);
   const [leagueName, setLeagueName] = useState('My League');
+  const [timesPlayed, setTimesPlayed] = useState(1);
 
   const generateSchedule = () => {
+    const generateID = () => Date.now() + Math.random();
     const fixturesNeeded = ((playerObjectArray.length / 2) * (playerObjectArray.length - 1));
     const roundsNeeded = fixturesNeeded / (playerObjectArray.length / 2);
     const halfLength = Math.ceil(playerObjectArray.length / 2); // Of the player Array
@@ -24,7 +27,7 @@ const CreateLeagueInterface = (props) => {
     arraySecondHalf.reverse();
     const createMatchDay = () => {
       // eslint-disable-next-line max-len
-      const matchDay = leftSide.map((player, i) => ({ home: player, away: arraySecondHalf[i], result: [1, 0] }));
+      const matchDay = leftSide.map((player, i) => ({ home: player, away: arraySecondHalf[i], result: [false, false], id: generateID() }));
       return matchDay;
     };
     // Rotate the array Round Robin style to get unique fixtures.
@@ -43,6 +46,20 @@ const CreateLeagueInterface = (props) => {
       matchDays.push(createMatchDay());
       rotateArrays();
       counter += 1;
+    }
+    if (timesPlayed === 2) {
+      // Create reverse fixtures.
+      matchDays.forEach((matchDay) => {
+        const reverseMatchDay = matchDay.map(fixture => (
+          {
+            home: fixture.away,
+            away: fixture.home,
+            result: fixture.result,
+            id: generateID(),
+          }
+        ));
+        matchDays.push(reverseMatchDay);
+      });
     }
     return matchDays;
   };
@@ -108,6 +125,15 @@ const CreateLeagueInterface = (props) => {
           className="create-league_player-amount_button--add"
         >+</button>
       </div>
+        <p>Matchups between players:</p>
+        <button
+          disabled={timesPlayed === 1}
+          onClick={() => setTimesPlayed(1)}
+        >1</button>
+        <button
+          disabled={timesPlayed === 2}
+          onClick={() => setTimesPlayed(2)}
+        >2</button>
       {
         // eslint-disable-next-line max-len
         playerObjectArray.map(player => <CreatePlayerForm player={player} updatePlayerData={updatePlayerData} key={player.id} />)

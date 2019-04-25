@@ -2,13 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const CreatePlayerForm = (props) => {
-  console.log("rerendered");
   const player = props.player;
 
   const handleNameChange = (newValue) => {
     const newPlayerObject = player;
     newPlayerObject.name = newValue;
-    console.log(newValue);
     props.updatePlayerData(player.id, newPlayerObject);
   };
 
@@ -48,6 +46,7 @@ CreatePlayerForm.propTypes = {
     wins: PropTypes.number,
     losses: PropTypes.number,
     draws: PropTypes.number,
+    form: PropTypes.array,
   }).isRequired,
   updatePlayerData: PropTypes.func.isRequired,
 };
