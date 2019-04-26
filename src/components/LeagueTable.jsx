@@ -63,7 +63,7 @@ const LeagueTable = (props) => {
       const result = fixture.result;
       const home = fixture.home.id;
       const away = fixture.away.id;
-      if (fixture.result[0] === false || fixture.result[1] === false) {
+      if (fixture.result[0] === null || fixture.result[1] === null) {
         return false;
       } else if (fixture.result[0] > fixture.result[1]) {
         updatePlayerOnResult(home, away, result, false);
@@ -92,7 +92,7 @@ const LeagueTable = (props) => {
     const formLabelObject = ['W', 'D', 'L'];
     const shownForm = player.form.slice(-5);
     return (
-      <tr>
+      <tr key={`row${i + 1}`}>
         <td>{i + 1}</td>
         <td>{player.name}</td>
         <td>{player.gamesPlayed}</td>

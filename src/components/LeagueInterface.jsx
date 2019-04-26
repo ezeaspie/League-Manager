@@ -1,3 +1,4 @@
+/* eslint-disable no-alert */
 /* eslint-disable react/prop-types */
 import React, { useState } from 'react';
 import LeagueTable from './LeagueTable';
@@ -9,11 +10,17 @@ const fs = require('fs');
 
 const LeagueInterface = (props) => {
   const [currentLeagueView, setCurrentLeagueView] = useState(0);
-  const [players, setPlayers] = useState(props.leagueData.players);
+  const [players] = useState(props.leagueData.players);
   const [fixtureData, setFixtureData] = useState(props.leagueData.fixtures);
 
   const saveFile = () => {
-    const content = JSON.stringify(fixtureData);
+    const content = JSON.stringify(
+      {
+        players,
+        fixtures: fixtureData,
+        leagueTitle: props.leagueData.leagueTitle,
+      },
+    );
     dialog.showSaveDialog(
       {
         filters: { name: 'JSON Files', extensions: ['json'] },
@@ -25,7 +32,8 @@ const LeagueInterface = (props) => {
           return;
         }
         fs.writeFile(fileName, content, (err) => {
-        console.log(err);
+          // eslint-disable-next-line no-undef
+          window.alert(err);
         });
       });
   };
@@ -34,9 +42,9 @@ const LeagueInterface = (props) => {
     const duplicate = fixtureData;
     for (let i = 0; i < duplicate.length; i += 1) {
       for (let p = 0; p < duplicate[i].length; p += 1) {
+        // eslint-disable-next-line max-len
         if (duplicate[i][p].home === updatedFixture.home && duplicate[i][p].away === updatedFixture.away) {
           duplicate[i][p].result = updatedFixture.result;
-          console.log(duplicate[i][p]);
           setFixtureData(duplicate);
           break;
         }
@@ -44,20 +52,18 @@ const LeagueInterface = (props) => {
     }
   };
 
-  console.log(props);
-
   const updateView = (newViewValue) => {
     setCurrentLeagueView(newViewValue);
   };
 
-  const renderFixtures = () => {
-    return fixtureData.map((matchDay, i) => {
+  const renderFixtures = () => (
+    fixtureData.map((matchDay, i) => {
       const items = matchDay.map(fixture => (
-        <EditFixture fixture={fixture} updateFixtures={updateFixtures} />
+        <EditFixture key={fixture.id} fixture={fixture} updateFixtures={updateFixtures} />
       ));
       return <div><h2>Round {i + 1}</h2>{items}</div>;
-    });
-  };
+    })
+  );
 
   const renderLeagueTable = () => <LeagueTable players={players} fixtureData={fixtureData} />;
 

@@ -10,9 +10,7 @@ export default function App() {
 
   const updateCurrentView = (newViewValue, context = undefined) => {
     if (newViewValue === 2) {
-      console.log(context);
       storedData = context;
-      console.log(storedData);
     }
     setCurrentView(newViewValue);
     return newViewValue;

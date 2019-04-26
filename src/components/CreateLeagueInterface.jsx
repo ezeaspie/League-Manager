@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import playerFactory from './playerFactory';
 import CreatePlayerForm from './appParts/CreatePlayerForm';
-import { match } from 'minimatch';
 
 const CreateLeagueInterface = (props) => {
   const initalObjectArray = [
@@ -27,7 +26,7 @@ const CreateLeagueInterface = (props) => {
     arraySecondHalf.reverse();
     const createMatchDay = () => {
       // eslint-disable-next-line max-len
-      const matchDay = leftSide.map((player, i) => ({ home: player, away: arraySecondHalf[i], result: [false, false], id: generateID() }));
+      const matchDay = leftSide.map((player, i) => ({ home: player, away: arraySecondHalf[i], result: [null, null], id: generateID() }));
       return matchDay;
     };
     // Rotate the array Round Robin style to get unique fixtures.
@@ -125,15 +124,15 @@ const CreateLeagueInterface = (props) => {
           className="create-league_player-amount_button--add"
         >+</button>
       </div>
-        <p>Matchups between players:</p>
-        <button
-          disabled={timesPlayed === 1}
-          onClick={() => setTimesPlayed(1)}
-        >1</button>
-        <button
-          disabled={timesPlayed === 2}
-          onClick={() => setTimesPlayed(2)}
-        >2</button>
+      <p>Matchups between players:</p>
+      <button
+        disabled={timesPlayed === 1}
+        onClick={() => setTimesPlayed(1)}
+      >1</button>
+      <button
+        disabled={timesPlayed === 2}
+        onClick={() => setTimesPlayed(2)}
+      >2</button>
       {
         // eslint-disable-next-line max-len
         playerObjectArray.map(player => <CreatePlayerForm player={player} updatePlayerData={updatePlayerData} key={player.id} />)

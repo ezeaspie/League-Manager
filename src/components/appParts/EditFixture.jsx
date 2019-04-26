@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useState } from 'react';
 
 const EditFixture = (props) => {
@@ -8,10 +9,10 @@ const EditFixture = (props) => {
   // On click Save, update Main data in LeagueInterface.
 
   const updateMainData = () => {
-    if (!homeResult || !awayResult) {
+    if (homeResult === null || awayResult === null) {
       // show some error.
-      setHomeResult(false);
-      setAwayResult(false);
+      setHomeResult(null);
+      setAwayResult(null);
     } else {
       fixture.result = [homeResult, awayResult];
       props.updateFixtures(fixture);
@@ -20,18 +21,28 @@ const EditFixture = (props) => {
   };
 
   let infoDocket = <p>{homeResult} - {awayResult}</p>;
-  if (!homeResult || !awayResult) {
+  if (homeResult === null || awayResult === null) {
     infoDocket = <p>Fixture not Played</p>;
   }
   return (
     <div>
-      <button onClick={isEditing ? updateMainData : () => setIsEditing(true)}>{isEditing ? "Save" : "Edit"}</button>
+      <button
+        onClick={isEditing ? updateMainData : () => setIsEditing(true)}
+      >{isEditing ? 'Save' : 'Edit'}</button>
       <p>{fixture.home.name} vs {fixture.away.name}</p>
       {
         isEditing ?
           <div>
-            <input onChange={e => setHomeResult(Number(e.target.value))} type="number" value={homeResult} />
-            <input onChange={e => setAwayResult(Number(e.target.value))} type="number" value={awayResult} />
+            <input
+              onChange={e => setHomeResult(Number(e.target.value))}
+              type="number"
+              value={homeResult}
+            />
+            <input
+              onChange={e => setAwayResult(Number(e.target.value))}
+              type="number"
+              value={awayResult}
+            />
           </div>
           :
           <div>
