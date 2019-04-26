@@ -11,9 +11,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {AppContainer} from 'react-hot-loader';
-const { dialog } = require('electron').remote;
-
-const fs = require('fs');
 
 const render = () => {
   const App = require('./app').default;
@@ -24,21 +21,5 @@ render();
 if (module.hot) {
   module.hot.accept(render);
 }
-
-document.getElementById('save').onclick = () => {
-  const content = document.getElementById('leagueData').innerHTML;
-  dialog.showSaveDialog({
-    filters:
-    { name: 'JSON Files', extensions: ['json'] },
-  }, (fileName) => {
-    if (fileName === undefined) {
-      alert("Please enter a name for your file.");
-      return;
-    }
-    fs.writeFile(fileName, content, (err) => {
-      console.log(err);
-    });
-  });
-};
 </script>
 </html>

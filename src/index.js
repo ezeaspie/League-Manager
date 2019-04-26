@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow , ipcMain } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { enableLiveReload } from 'electron-compile';
 
@@ -16,9 +16,11 @@ const createWindow = async () => {
     width: 800,
     height: 600,
   });
-  
+
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/index.html`);
+
+  ipcMain.on('Hi', (event,args) => console.log(args));
 
   // Open the DevTools.
   if (isDevMode) {

@@ -1,12 +1,34 @@
 /* eslint-disable react/prop-types */
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import LeagueTable from './LeagueTable';
 import EditFixture from './appParts/EditFixture';
+
+const { dialog } = require('electron').remote;
+const fs = require('fs');
+
 
 const LeagueInterface = (props) => {
   const [currentLeagueView, setCurrentLeagueView] = useState(0);
   const [players, setPlayers] = useState(props.leagueData.players);
   const [fixtureData, setFixtureData] = useState(props.leagueData.fixtures);
+
+  const saveFile = () => {
+    const content = JSON.stringify(fixtureData);
+    dialog.showSaveDialog(
+      {
+        filters: { name: 'JSON Files', extensions: ['json'] },
+      },
+      (fileName) => {
+        if (fileName === undefined) {
+          // eslint-disable-next-line no-undef
+          window.alert('Please enter a name for your file.');
+          return;
+        }
+        fs.writeFile(fileName, content, (err) => {
+        console.log(err);
+        });
+      });
+  };
 
   const updateFixtures = (updatedFixture) => {
     const duplicate = fixtureData;
@@ -20,7 +42,7 @@ const LeagueInterface = (props) => {
         }
       }
     }
-  }
+  };
 
   console.log(props);
 
@@ -46,6 +68,7 @@ const LeagueInterface = (props) => {
 
   return (
     <div>
+      <button onClick={saveFile}>Save</button>
       <p style={{ display: 'none' }} id="leagueData">{JSON.stringify({ players, fixtureData })}</p>
       <h1>{props.leagueData.leagueTitle}</h1>
       {currentLeagueView === 0 ?

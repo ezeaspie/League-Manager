@@ -41,7 +41,6 @@ export default function App() {
   return (
     <div className="content-container">
       {views[currentView]()}
-      <button id="save">Save</button>
     </div>
   );
 }
