@@ -14,6 +14,31 @@ const CreateLeagueInterface = (props) => {
   const [playerObjectArray, setPlayerObjectArray] = useState(initalObjectArray);
   const [leagueName, setLeagueName] = useState('My League');
   const [timesPlayed, setTimesPlayed] = useState(1);
+  // Tourmanent type where 0 = League , 1 = Cup
+  const [tournamentType, setTournamentType] = useState(0);
+
+  const tournamentTypeNames = [
+    'League',
+    'Cup',
+  ];
+
+  const generateBracket = () => {
+    const matchDays = [];
+    const matchDay = [];
+    const clone = playerObjectArray.slice(0);
+    const generateID = () => Date.now() + Math.random();
+
+    while (clone.length > 0) {
+      let rand = Math.floor(Math.random() * clone.length);
+      const home = clone.splice(rand, 1);
+      rand = Math.floor(Math.random() * clone.length);
+      const away = clone.splice(rand, 1);
+      const fixture = { home: home[0], away: away[0], result: [null, null], id: generateID() };
+      matchDay.push(fixture);
+    }
+    matchDays.push(matchDay);
+    return matchDays;
+  };
 
   const generateSchedule = () => {
     const generateID = () => Date.now() + Math.random();
@@ -64,19 +89,61 @@ const CreateLeagueInterface = (props) => {
   };
 
   const handleLeagueGeneration = () => {
-    const fixtures = generateSchedule();
-    const leagueData = { players: playerObjectArray, fixtures, leagueTitle: leagueName };
+    const fixtures = tournamentType === 0 ? generateSchedule() : generateBracket();
+    const leagueData = {
+      players: playerObjectArray,
+      fixtures,
+      leagueTitle: leagueName,
+      tournamentType,
+    };
     props.updateCurrentView(2, leagueData);
   };
 
-  const updateNumberOfPlayers = (amount) => {
+  const updateNumberOfPlayers = (amount, setAmount = false) => {
     // eslint-disable-next-line prefer-const
     let manipulatedArray = playerObjectArray;
-    const desiredLength = playerObjectArray.length + (amount * 2);
-    if (amount < 0) { // If less than, splice away the excess.
+    let desiredLength = 0;
+    let amountToAdd = 0;
+    if (!setAmount && tournamentType === 0) {
+      desiredLength = playerObjectArray.length + (amount * 2);
+    }
+    if (setAmount) {
+      desiredLength = amount;
+    }
+    if (tournamentType === 1 && !setAmount) {
+      if (playerObjectArray.length === 4 && amount === 1) {
+        desiredLength = 8;
+      }
+      if (playerObjectArray.length === 8) {
+        if (amount === -1) {
+          desiredLength = 4;
+        } else {
+          desiredLength = 16;
+        }
+      }
+      if (playerObjectArray.length === 16) {
+        if (amount === -1) {
+          desiredLength = 8;
+        } else {
+          desiredLength = 32;
+        }
+      }
+      if (playerObjectArray.length === 32 && amount === -1) {
+        desiredLength = 16;
+      }
+    }
+    if (desiredLength === 0) {
+      return;
+    }
+    if (amount === -1 || setAmount) { // If less than, splice away the excess.
       manipulatedArray.splice(desiredLength);
     } else {
-      for (let i = 0; i < amount * 2; i += 1) {
+      if (tournamentType === 1) {
+        amountToAdd = desiredLength - playerObjectArray.length;
+      } else {
+        amountToAdd = amount * 2;
+      }
+      for (let i = 0; i < amountToAdd; i += 1) {
         manipulatedArray.push(playerFactory('Player', 'Home Stadium'));
       }
     }
@@ -101,16 +168,35 @@ const CreateLeagueInterface = (props) => {
     setPlayerObjectArray(manipulatedArray);
   };
 
+  const switchToCupType = () => {
+    setTournamentType(1);
+    updateNumberOfPlayers(4, true);
+  };
+
   setPlayerList();
 
   return (
     <div className="create-league">
-      <div className="create-league_player-amount">
-        <input
-          type="text"
-          value={leagueName}
-          onChange={e => setLeagueName(e.target.value)}
-        />
+      <input
+        type="text"
+        value={leagueName}
+        onChange={e => setLeagueName(e.target.value)}
+      />
+      <div className="tournament-option">
+        <button
+          disabled={tournamentType === 0}
+          onClick={() => setTournamentType(0)}
+        >
+          {tournamentTypeNames[0]}
+        </button>
+        <button
+          disabled={tournamentType === 1}
+          onClick={switchToCupType}
+        >
+          {tournamentTypeNames[1]}
+        </button>
+      </div>
+      <div className="tournament-option">
         <button
           onClick={() => updateNumberOfPlayers(-1)}
           className="create-league_player-amount_button--add"
@@ -124,15 +210,17 @@ const CreateLeagueInterface = (props) => {
           className="create-league_player-amount_button--add"
         >+</button>
       </div>
-      <p>Matchups between players:</p>
-      <button
-        disabled={timesPlayed === 1}
-        onClick={() => setTimesPlayed(1)}
-      >1</button>
-      <button
-        disabled={timesPlayed === 2}
-        onClick={() => setTimesPlayed(2)}
-      >2</button>
+      <div className="tournament-option">
+        <p>{tournamentType === 0 ? 'Times played' : 'Legs per round'}</p>
+        <button
+          disabled={timesPlayed === 1}
+          onClick={() => setTimesPlayed(1)}
+        >1</button>
+        <button
+          disabled={timesPlayed === 2}
+          onClick={() => setTimesPlayed(2)}
+        >2</button>
+      </div>
       {
         // eslint-disable-next-line max-len
         playerObjectArray.map(player => <CreatePlayerForm player={player} updatePlayerData={updatePlayerData} key={player.id} />)
@@ -140,7 +228,7 @@ const CreateLeagueInterface = (props) => {
       <button
         onClick={handleLeagueGeneration}
       >
-        Create League
+        Create {tournamentTypeNames[tournamentType]}
       </button>
     </div>
   );
