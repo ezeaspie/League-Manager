@@ -104,7 +104,7 @@ const LeagueTable = (props) => {
         <td>{player.goalDifference}</td>
         <td>{player.points}</td>
         <td>
-          {shownForm.map(result => <span className={`form${result}`}>{formLabelObject[result]}</span>)}
+          {shownForm.map(result => <span key={`pForm${i + 1}`} className={`form${result}`}>{formLabelObject[result]}</span>)}
         </td>
       </tr>
     );

@@ -33,10 +33,26 @@ const CreateLeagueInterface = (props) => {
       const home = clone.splice(rand, 1);
       rand = Math.floor(Math.random() * clone.length);
       const away = clone.splice(rand, 1);
-      const fixture = { home: home[0], away: away[0], result: [null, null], id: generateID() };
+      const fixture = { home: home[0], away: away[0], round: 0, result: [null, null], id: generateID(), cupId: generateID() };
       matchDay.push(fixture);
     }
     matchDays.push(matchDay);
+    if (timesPlayed === 2) {
+      // Create reverse fixtures.
+      matchDays.forEach((matchDayWithin) => {
+        const reverseMatchDay = matchDayWithin.map(fixture => (
+          {
+            home: fixture.away,
+            away: fixture.home,
+            result: fixture.result,
+            id: generateID(),
+            cupId: fixture.cupId,
+            round: fixture.round,
+          }
+        ));
+        matchDays.push(reverseMatchDay);
+      });
+    }
     return matchDays;
   };
 

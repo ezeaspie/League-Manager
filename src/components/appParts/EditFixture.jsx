@@ -4,8 +4,16 @@ import React, { useState } from 'react';
 const EditFixture = (props) => {
   const fixture = props.fixture;
   const [isEditing, setIsEditing] = useState(false);
-  const [homeResult, setHomeResult] = useState(fixture.result[0]);
-  const [awayResult, setAwayResult] = useState(fixture.result[1]);
+  let homeValue = 0;
+  let awayValue = 0;
+  if (fixture.result[0] !== null) {
+    homeValue = fixture.result[0];
+  }
+  if (fixture.result[1] !== null) {
+    awayValue = fixture.result[1];
+  }
+  const [homeResult, setHomeResult] = useState(homeValue);
+  const [awayResult, setAwayResult] = useState(awayValue);
   // On click Save, update Main data in LeagueInterface.
 
   const updateMainData = () => {
