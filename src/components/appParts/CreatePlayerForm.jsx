@@ -17,18 +17,23 @@ const CreatePlayerForm = (props) => {
   };
 
   return (
-    <div>
-      <input
-        type="text"
-        value={player.name}
-        onChange={e => handleNameChange(e.target.value)}
-      />
-      <input
-        type="text"
-        value={player.homeStadium}
-        onChange={e => handleStadiumChange(e.target.value)}
-      />
-      <h2>{player.id}</h2>
+    <div className="player-form">
+      <div className="section">
+        <h4>Name:</h4>
+        <input
+          type="text"
+          value={player.name}
+          onChange={e => handleNameChange(e.target.value)}
+        />
+      </div>
+      <div className="section">
+        <h4>Home Venue:</h4>
+        <input
+          type="text"
+          value={player.homeStadium}
+          onChange={e => handleStadiumChange(e.target.value)}
+        />
+      </div>
     </div>
   );
 };

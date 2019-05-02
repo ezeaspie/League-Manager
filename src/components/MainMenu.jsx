@@ -26,15 +26,17 @@ const MainMenu = (props) => {
 
   return (
     <div className="main-menu">
-      <button
-        onClick={() => props.updateCurrentView(1)}
-        className="main-menu_button"
-      >Create New League</button>
-      <button
-        className="main-menu_button"
-        onClick={loadFile}
-      >Load League</button>
-      <button className="main-menu_button" />
+      <h1 className="main-menu title">League Manager</h1>
+      <div className="main-menu buttons">
+        <button
+          onClick={() => props.updateCurrentView(1)}
+          className="main-menu button"
+        >Create New League</button>
+        <button
+          className="main-menu button"
+          onClick={loadFile}
+        >Load League</button>
+      </div>
     </div>
   );
 };

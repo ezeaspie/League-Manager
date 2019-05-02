@@ -91,6 +91,13 @@ const LeagueTable = (props) => {
   const tableContent = players.map((player, i) => {
     const formLabelObject = ['W', 'D', 'L'];
     const shownForm = player.form.slice(-5);
+    const position = [
+      { name: 'champion', positons: [0] },
+      { name: 'continental', positions: [1, 2] },
+      { name: 'continental-qualification', positions: [3] },
+      { name: 'minor-continental', positions: [4] },
+      { name: 'minor-continental', positions: [5] },
+    ];
     return (
       <tr key={`row${i + 1}`}>
         <td>{i + 1}</td>

@@ -35,6 +35,7 @@ const EditFixture = (props) => {
   return (
     <div>
       <button
+        className="button"
         onClick={isEditing ? updateMainData : () => setIsEditing(true)}
       >{isEditing ? 'Save' : 'Edit'}</button>
       <p>{fixture.home.name} vs {fixture.away.name}</p>

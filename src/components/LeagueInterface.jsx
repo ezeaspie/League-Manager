@@ -9,16 +9,33 @@ const fs = require('fs');
 
 const LeagueInterface = (props) => {
   const [currentLeagueView, setCurrentLeagueView] = useState(0);
-  console.log(currentLeagueView);
   const [players] = useState(props.leagueData.players);
   const [fixtureData, setFixtureData] = useState(props.leagueData.fixtures);
+  const rounds = [
+    { name: 'Round of 32', participants: 32 },
+    { name: 'Round of 16', participants: 16 },
+    { name: 'Quarter-Finals', participants: 8 },
+    { name: 'Semi-Finals', participants: 4 },
+    { name: 'Final', participants: 2 },
+  ];
+  const findRound = () => {
+    let round = 0;
+    rounds.forEach((roundData, i) => {
+      if (props.leagueData.players.length === roundData.participants) {
+        round = i;
+      }
+    });
+    return round;
+  };
+  const [currentRound, setCurrentRound] = useState(findRound);
+  console.log(currentRound);
 
-  const generateBracket = () => {
+  const generateBracket = (round) => {
     const matchDay = [];
     const winners = [];
     // Filter out all fixtures that took place in a particular round.
     const fixtureArray = fixtureData.filter(matchDayWithin => (
-      matchDayWithin.every(fixture => fixture.round === 0)
+      matchDayWithin.every(fixture => fixture.round === round)
     ));
     console.log(fixtureArray);
 
@@ -38,8 +55,8 @@ const LeagueInterface = (props) => {
           }
         });
       });
-      let player1 = filteredFixtures[0].home;
-      let player2 = filteredFixtures[0].away;
+      const player1 = filteredFixtures[0].home;
+      const player2 = filteredFixtures[0].away;
 
       player1.score = 0;
       player2.score = 0;
@@ -76,16 +93,22 @@ const LeagueInterface = (props) => {
     });
     console.log(winners);
 
-    const clone = props.leagueData.players.slice(0);
+    const clone = winners;
     const generateID = () => Date.now() + Math.random();
     while (clone.length > 0) {
       let rand = Math.floor(Math.random() * clone.length);
       const home = clone.splice(rand, 1);
       rand = Math.floor(Math.random() * clone.length);
       const away = clone.splice(rand, 1);
-      const fixture = { home: home[0], away: away[0], round: 0, result: [null, null], id: generateID(), cupId: generateID() };
+      // eslint-disable-next-line max-len
+      const fixture = { home: home[0], away: away[0], round: currentRound + 1, result: [null, null], id: generateID(), cupId: generateID() };
       matchDay.push(fixture);
     }
+    console.log(matchDay);
+    const fixtureClone = fixtureData.splice(0);
+    fixtureClone.push(matchDay);
+    setFixtureData(fixtureClone);
+    setCurrentRound(currentRound + 1);
     return matchDay;
   };
 
@@ -134,10 +157,11 @@ const LeagueInterface = (props) => {
 
   const renderFixtures = () => (
     fixtureData.map((matchDay, i) => {
+      const roundName = matchDay[0].round;
       const items = matchDay.map(fixture => (
-        <EditFixture key={fixture.id} fixture={fixture} updateFixtures={updateFixtures} />
+        <EditFixture key={`${fixture.id + i}`} fixture={fixture} updateFixtures={updateFixtures} />
       ));
-      return <div><h2>Round {i + 1}</h2>{items}</div>;
+      return <div><h2>{props.leagueData.tournamentType === 1 ? rounds[roundName].name : `Round ${i + 1}`}</h2>{items}</div>;
     })
   );
 
@@ -161,17 +185,18 @@ const LeagueInterface = (props) => {
 
   return (
     <div>
-      <button onClick={saveFile}>Save</button>
       <h1>{props.leagueData.leagueTitle}</h1>
+      <button className="button call-to-action" onClick={saveFile}>Save</button>
       {props.leagueData.tournamentType === 1 ?
         <button
-          disabled={!possibleNextDraw} 
-          onClick={() => generateBracket()}
+          className="button call-to-action"
+          disabled={!possibleNextDraw}
+          onClick={() => generateBracket(currentRound)}
         >Draw Next Round</button>
         : null }
       {currentLeagueView === 0 ?
-        <button onClick={() => updateView(1)}>Show Table</button> :
-        <button onClick={() => updateView(0)}>Show Fixtures</button>
+        <button className="button" onClick={() => updateView(1)}>Show Table</button> :
+        <button className="button" onClick={() => updateView(0)}>Show Fixtures</button>
       }
 
       {views[currentLeagueView]()}

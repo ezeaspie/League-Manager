@@ -28,12 +28,30 @@ const CreateLeagueInterface = (props) => {
     const clone = playerObjectArray.slice(0);
     const generateID = () => Date.now() + Math.random();
 
+    const findRound = () => {
+      const rounds = [
+        { name: 'Round of 32', participants: 32 },
+        { name: 'Round of 16', participants: 16 },
+        { name: 'Quarter-Finals', participants: 8 },
+        { name: 'Semi-Finals', participants: 4 },
+        { name: 'Final', participants: 2 },
+      ];
+      let round = 0;
+      rounds.forEach((roundData, i) => {
+        if (playerObjectArray.length === roundData.participants) {
+          round = i;
+        }
+      });
+      return round;
+    };
+
     while (clone.length > 0) {
       let rand = Math.floor(Math.random() * clone.length);
       const home = clone.splice(rand, 1);
       rand = Math.floor(Math.random() * clone.length);
       const away = clone.splice(rand, 1);
-      const fixture = { home: home[0], away: away[0], round: 0, result: [null, null], id: generateID(), cupId: generateID() };
+      // eslint-disable-next-line max-len
+      const fixture = { home: home[0], away: away[0], round: findRound(), result: [null, null], id: generateID(), cupId: generateID() };
       matchDay.push(fixture);
     }
     matchDays.push(matchDay);
@@ -193,29 +211,32 @@ const CreateLeagueInterface = (props) => {
 
   return (
     <div className="create-league">
+      <h1>Create a {tournamentType === 1 ? 'Cup' : 'League'}</h1>
       <input
         type="text"
         value={leagueName}
         onChange={e => setLeagueName(e.target.value)}
       />
+      <h2>Tournament Set-up</h2>
       <div className="tournament-option">
         <button
-          disabled={tournamentType === 0}
+          className={tournamentType === 0 ? 'option selected' : 'option'}
           onClick={() => setTournamentType(0)}
         >
           {tournamentTypeNames[0]}
         </button>
         <button
-          disabled={tournamentType === 1}
+          className={tournamentType === 1 ? 'option selected' : 'option'}
           onClick={switchToCupType}
         >
           {tournamentTypeNames[1]}
         </button>
       </div>
+      <h3>Number of Participants</h3>
       <div className="tournament-option">
         <button
           onClick={() => updateNumberOfPlayers(-1)}
-          className="create-league_player-amount_button--add"
+          className="create-league_player button"
         >-</button>
         <span
           type="number"
@@ -223,25 +244,27 @@ const CreateLeagueInterface = (props) => {
         >{playerObjectArray.length}</span>
         <button
           onClick={() => updateNumberOfPlayers(1)}
-          className="create-league_player-amount_button--add"
+          className="create-league_player button"
         >+</button>
       </div>
       <div className="tournament-option">
-        <p>{tournamentType === 0 ? 'Times played' : 'Legs per round'}</p>
+        <h3>{tournamentType === 0 ? 'Times played' : 'Legs per round'}</h3>
         <button
-          disabled={timesPlayed === 1}
+          className={timesPlayed === 1 ? 'option selected' : 'option'}
           onClick={() => setTimesPlayed(1)}
         >1</button>
         <button
-          disabled={timesPlayed === 2}
+          className={timesPlayed === 2 ? 'option selected' : 'option'}
           onClick={() => setTimesPlayed(2)}
         >2</button>
       </div>
+      <h2>Participant Info</h2>
       {
         // eslint-disable-next-line max-len
         playerObjectArray.map(player => <CreatePlayerForm player={player} updatePlayerData={updatePlayerData} key={player.id} />)
       }
       <button
+        className="button call-to-action"
         onClick={handleLeagueGeneration}
       >
         Create {tournamentTypeNames[tournamentType]}
